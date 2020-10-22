@@ -24,6 +24,7 @@ class GoogleMap extends StatefulWidget {
   const GoogleMap({
     Key key,
     @required this.initialCameraPosition,
+    this.keepAlive = false,
     this.onMapCreated,
     this.gestureRecognizers,
     this.compassEnabled = true,
@@ -56,6 +57,9 @@ class GoogleMap extends StatefulWidget {
     this.onLongPress,
   })  : assert(initialCameraPosition != null),
         super(key: key);
+
+  /// Mark map as needing to stay alive
+  final bool keepAlive;
 
   /// Callback method for when the map is ready to be used.
   ///
@@ -210,7 +214,7 @@ class GoogleMap extends StatefulWidget {
   State createState() => _GoogleMapState();
 }
 
-class _GoogleMapState extends State<GoogleMap> {
+class _GoogleMapState extends State<GoogleMap> with AutomaticKeepAliveClientMixin<GoogleMap>{
   final _webOnlyMapCreationId = _webOnlyMapId++;
 
   final Completer<GoogleMapController> _controller =
@@ -224,6 +228,8 @@ class _GoogleMapState extends State<GoogleMap> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final Map<String, dynamic> creationParams = <String, dynamic>{
       'initialCameraPosition': widget.initialCameraPosition?.toMap(),
       'options': _googleMapOptions.toMap(),
@@ -240,6 +246,9 @@ class _GoogleMapState extends State<GoogleMap> {
       onPlatformViewCreated,
     );
   }
+
+  @override
+  bool get wantKeepAlive => widget.keepAlive;
 
   @override
   void initState() {
